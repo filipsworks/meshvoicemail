@@ -108,6 +108,7 @@ def save_and_play_file(sender, data):
 
 
 def onReceive(packet, interface):
+    print(f"Received: {packet}")
     sender = packet['from']
     packet_id = packet['id']
     payload = packet['decoded']['payload']
@@ -126,11 +127,13 @@ def onReceive(packet, interface):
     end_found = False
 
     for _, p in packets[sender]:
-        assembled_payload.extend(p)
         if p.startswith(start_sequence):
             start_found = True
         if p.endswith(end_sequence):
             end_found = True
+            assembled_payload.extend(p[:-len(end_sequence)])
+        else:
+            assembled_payload.extend(p)
 
     if start_found and end_found:
         packets[sender] = []
